@@ -194,7 +194,7 @@ static int zlog_rotater_add_archive_files(zlog_rotater_t * a_rotater)
 
 	/* scan file which is aa.*.log and aa */
 	rc = glob(a_rotater->glob_path, GLOB_ERR | GLOB_MARK | GLOB_NOSORT, NULL, &glob_buf);
-	if (rc == GLOB_NOMATCH) {
+	if (rc == GLOB_NOCHECK) {
 		goto exit;
 	} else if (rc) {
 		zc_error("glob err, rc=[%d], errno[%d]", rc, errno);
@@ -238,7 +238,7 @@ static int zlog_rotater_seq_files(zlog_rotater_t * a_rotater)
 	char new_path[MAXLEN_PATH + 1];
 
 	zc_arraylist_foreach(a_rotater->files, i, a_file) {
-		if (a_rotater->max_count > 0 
+		if (a_rotater->max_count > 0
 			&& i < zc_arraylist_len(a_rotater->files) - a_rotater->max_count) {
 			/* unlink aa.0 aa.1 .. aa.(n-c) */
 			rc = unlink(a_file->path);
@@ -265,7 +265,7 @@ static int zlog_rotater_seq_files(zlog_rotater_t * a_rotater)
 	/* do the base_path mv  */
 	memset(new_path, 0x00, sizeof(new_path));
 	nwrite = snprintf(new_path, sizeof(new_path), "%.*s%0*d%s",
-		(int) a_rotater->num_start_len, a_rotater->glob_path, 
+		(int) a_rotater->num_start_len, a_rotater->glob_path,
 		a_rotater->num_width, j,
 		a_rotater->glob_path + a_rotater->num_end_len);
 	if (nwrite < 0 || nwrite >= sizeof(new_path)) {
@@ -311,7 +311,7 @@ static int zlog_rotater_roll_files(zlog_rotater_t * a_rotater)
 		/* begin rename aa.01.log -> aa.02.log , using i, as index in list maybe repeat */
 		memset(new_path, 0x00, sizeof(new_path));
 		nwrite = snprintf(new_path, sizeof(new_path), "%.*s%0*d%s",
-			(int) a_rotater->num_start_len, a_rotater->glob_path, 
+			(int) a_rotater->num_start_len, a_rotater->glob_path,
 			a_rotater->num_width, i + 1,
 			a_rotater->glob_path + a_rotater->num_end_len);
 		if (nwrite < 0 || nwrite >= sizeof(new_path)) {
@@ -328,7 +328,7 @@ static int zlog_rotater_roll_files(zlog_rotater_t * a_rotater)
 	/* do the base_path mv  */
 	memset(new_path, 0x00, sizeof(new_path));
 	nwrite = snprintf(new_path, sizeof(new_path), "%.*s%0*d%s",
-		(int) a_rotater->num_start_len, a_rotater->glob_path, 
+		(int) a_rotater->num_start_len, a_rotater->glob_path,
 		a_rotater->num_width, 0,
 		a_rotater->glob_path + a_rotater->num_end_len);
 	if (nwrite < 0 || nwrite >= sizeof(new_path)) {
@@ -405,7 +405,7 @@ static int zlog_rotater_parse_archive_path(zlog_rotater_t * a_rotater)
 		a_rotater->num_start_len = len;
 		a_rotater->num_end_len = len + 1;
 	}
-	
+
 	return 0;
 }
 
@@ -424,7 +424,7 @@ static void zlog_rotater_clean(zlog_rotater_t *a_rotater)
 	a_rotater->files = NULL;
 }
 
-static int zlog_rotater_lsmv(zlog_rotater_t *a_rotater, 
+static int zlog_rotater_lsmv(zlog_rotater_t *a_rotater,
 		char *base_path, char *archive_path, int archive_max_count)
 {
 	int rc = 0;
